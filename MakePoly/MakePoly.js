@@ -37,8 +37,30 @@ window.onload = function init() {
             2 * (canvas.height - event.offsetY) / canvas.height - 1);
         gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
         gl.bufferSubData(gl.ARRAY_BUFFER, 8 * index, flatten(t));
+
+        t = colors[cindex];
+        gl.bindBuffer(gl.ARRAY_BUFFER, cBufferId);
+        gl.bufferSubData(gl.ARRAY_BUFFER, 16 * index, flatten(t));
+
+        index++;
+        numIndices[numPolygons]++;
+
+        render(true);
     });
 
+    document.getElementById("menuval").onchange =
+        function (event) {
+            cindex = event.target.value;
+        };
+
+    document.getElementById("buttonval").onclick =
+        function () {
+            numPolygons++;
+            numIndices[numPolygons] = 0;
+            start[numPolygons] = index;
+
+            render(false);
+        };
 
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(0.8, 0.8, 0.8, 1.0);
@@ -65,10 +87,14 @@ window.onload = function init() {
     gl.enableVertexAttribArray(vColor);
 }
 
-function render() {
+function render(showLine) {
     gl.clear(gl.COLOR_BUFFER_BIT);
 
     for (var i = 0; i < numPolygons; i++) {
         gl.drawArrays(gl.TRIANGLE_FAN, start[i], numIndices[i]);
+    }
+
+    if (showLine) {
+        gl.drawArrays(gl.LINE_STRIP, start[numPolygons], numIndices[numPolygons]);
     }
 }
